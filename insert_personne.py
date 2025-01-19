@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import psycopg2
 from psycopg2 import sql
+import geocodage
 
 
 def connexion(nom_pers=None):
@@ -21,7 +22,7 @@ def connexion(nom_pers=None):
 
 
     #Fonction pour insérer un client, produit et un tarif avec géocodage
-    def inserer_personne_tel():
+    def inserer_personne_tel_adrs():
         nom_pers = entry_nom_pers.get()
         prenom_pers = entry_prenom_pers.get()
         genre_pers = combo_genre_pers.get()
@@ -31,6 +32,7 @@ def connexion(nom_pers=None):
         type_rue = entry_type_rue.get()
         num_rue = entry_num_rue.get()
         complement_num = entry_complement_num.get()
+        article_rue = entry_article_rue.get()
         nom_rue = entry_nom_rue.get()
         num_bati = entry_num_bati.get()
         hall = entry_hall.get()
@@ -77,13 +79,18 @@ def connexion(nom_pers=None):
                 (num_tel, id_personne)
             )
 
+            address = str(num_rue) + " " + complement_num + " " + type_rue + " " + article_rue + " " + nom_rue + ", "  +  code_postal  + " " +commune + ", France"
+            print(address)
+            # Appel à la fonction de geocodage
+            lon, lat = geocodage.geocode_address(address)
+
             # Insertion dans la table adresse
             cur.execute(
                 """
-                INSERT INTO v1.adresse (type_rue , num_rue, complement_num, nom_rue, num_bati, hall, num_appart, code_postal, commune)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_adresse;
+                INSERT INTO v1.adresse (type_rue , num_rue, complement_num, article_rue, nom_rue, num_bati, hall, num_appart, code_postal, commune, geom)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, public.ST_SetSRID(public.ST_Point(%s::double precision, %s::double precision), 4326)) RETURNING id_adresse;
                 """,
-                (type_rue , num_rue, complement_num, nom_rue, num_bati, hall, num_appart, code_postal, commune)
+                (type_rue , num_rue, complement_num, article_rue, nom_rue, num_bati, hall, num_appart, code_postal, commune,  float(lon), float(lat))
             )
             id_adresse = cur.fetchone()[0]
 
@@ -137,28 +144,32 @@ def connexion(nom_pers=None):
     # Création de l'interface graphique
     root = tk.Tk()
     root.title("Gestion de l'adresse")
-    root.geometry("400x500")
+    root.geometry("400x900")
 
     tk.Label(root, text="Adresse principale ?").pack(pady=5)
     combo_adrs_principale = ttk.Combobox(root, values=["true", "false"])
     combo_adrs_principale.set("true")
     combo_adrs_principale.pack(pady=5)
 
-    tk.Label(root, text="Type de rue:").pack(pady=5)
-    entry_type_rue = tk.Entry(root)
-    entry_type_rue.pack(pady=5)
-
-    tk.Label(root, text="Intitulé de la rue:").pack(pady=5)
-    entry_nom_rue = tk.Entry(root)
-    entry_nom_rue.pack(pady=5)
-
     tk.Label(root, text="Numéro:").pack(pady=5)
     entry_num_rue = tk.Entry(root)
     entry_num_rue.pack(pady=5)
 
     tk.Label(root, text="Complément du numéro:").pack(pady=5)
-    entry_complement_num  = tk.Entry(root)
+    entry_complement_num = tk.Entry(root)
     entry_complement_num.pack(pady=5)
+
+    tk.Label(root, text="Type de rue:").pack(pady=5)
+    entry_type_rue = tk.Entry(root)
+    entry_type_rue.pack(pady=5)
+
+    tk.Label(root, text="Article (de/des...):").pack(pady=5)
+    entry_article_rue = tk.Entry(root)
+    entry_article_rue.pack(pady=5)
+
+    tk.Label(root, text="Intitulé de la rue:").pack(pady=5)
+    entry_nom_rue = tk.Entry(root)
+    entry_nom_rue.pack(pady=5)
 
     tk.Label(root, text="Numéro de bâtiment:").pack(pady=5)
     entry_num_bati = tk.Entry(root)
@@ -183,122 +194,10 @@ def connexion(nom_pers=None):
 
 
     # Bouton pour valider l'insertion
-    tk.Button(root, text="Ajouter la personne", command=inserer_personne_tel).pack(pady=20)
+    tk.Button(root, text="Ajouter la personne", command=inserer_personne_tel_adrs).pack(pady=20)
 
     root.mainloop()
 
 
-#
-# Fonction pour insérer un client, produit et un tarif avec géocodage
-# def inserer_client_produit_tarif():
-#     nom_client = entry_nom_client.get()
-#     adresse_client = entry_adresse_client.get()
-#     nom_produit = entry_nom_produit.get()
-#     description_produit = entry_description_produit.get()
-#     prix_tarif = entry_prix.get()
-#     date_tarif = entry_date.get()
-#
-#     if not (nom_client and adresse_client and nom_produit and description_produit and prix_tarif and date_tarif):
-#         messagebox.showwarning("Champs manquants", "Veuillez remplir tous les champs")
-#         return
-#
-#     try:
-#         conn = psycopg2.connect(**DB_CONFIG)
-#         cur = conn.cursor()
-#
-#         # Géocodage de l'adresse
-#         cur.execute(
-#             """
-#             SELECT ST_AsText(ST_GeomFromText('POINT(' || x || ' ' || y || ')', 4326))
-#             FROM geocodage WHERE adresse = %s;
-#             """,
-#             (adresse_client,)
-#         )
-#         point_geom = cur.fetchone()
-#
-#         if not point_geom:
-#             messagebox.showerror("Erreur", "Adresse non trouvée dans la base de géocodage")
-#             return
-#
-#         # Insertion dans la table client
-#         cur.execute(
-#             """
-#             INSERT INTO client (nom, adresse, geom)
-#             VALUES (%s, %s, ST_GeomFromText(%s, 4326)) RETURNING id;
-#             """,
-#             (nom_client, adresse_client, point_geom[0])
-#         )
-#         client_id = cur.fetchone()[0]
-#
-#         # Insertion dans la table produit
-#         cur.execute(
-#             """
-#             INSERT INTO produit (nom, description, client_id)
-#             VALUES (%s, %s, %s) RETURNING id;
-#             """,
-#             (nom_produit, description_produit, client_id)
-#         )
-#         produit_id = cur.fetchone()[0]
-#
-#         # Insertion dans la table tarif
-#         cur.execute(
-#             """
-#             INSERT INTO tarif (produit_id, prix, date_tarification)
-#             VALUES (%s, %s, %s);
-#             """,
-#             (produit_id, prix_tarif, date_tarif)
-#         )
-#
-#         conn.commit()
-#         messagebox.showinfo("Succès", "Client, produit et tarif ajoutés avec succès")
-#         cur.close()
-#         conn.close()
-#
-#     except Exception as e:
-#         messagebox.showerror("Erreur", f"Une erreur est survenue : {e}")
-#
-#
-# # Création de l'interface graphique
-# root = tk.Tk()
-# root.title("Gestion des Clients, Produits et Tarifs")
-# root.geometry("400x500")
-#
-# # Champs d'entrée pour client, produit et tarif
-# tk.Label(root, text="Nom du client:").pack(pady=5)
-# entry_nom_client = tk.Entry(root)
-# entry_nom_client.pack(pady=5)
-#
-# tk.Label(root, text="Adresse du client:").pack(pady=5)
-# entry_adresse_client = tk.Entry(root)
-# entry_adresse_client.pack(pady=5)
-#
-# tk.Label(root, text="Nom du produit:").pack(pady=5)
-# entry_nom_produit = tk.Entry(root)
-# entry_nom_produit.pack(pady=5)
-#
-# tk.Label(root, text="Description du produit:").pack(pady=5)
-# entry_description_produit = tk.Entry(root)
-# entry_description_produit.pack(pady=5)
-#
-# tk.Label(root, text="Prix du tarif:").pack(pady=5)
-# entry_prix = tk.Entry(root)
-# entry_prix.pack(pady=5)
-#
-# tk.Label(root, text="Date de tarification (YYYY-MM-DD):").pack(pady=5)
-# entry_date = tk.Entry(root)
-# entry_date.pack(pady=5)
-#
-# # Bouton pour valider l'insertion
-# tk.Button(root, text="Ajouter Client, Produit et Tarif", command=inserer_client_produit_tarif).pack(pady=20)
-#
-# root.mainloop()
-#
-#
-
-#
-
-#
-# # See PyCharm help at https://www.jetbrains.com/help/pycharm/
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     connexion()
