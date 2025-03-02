@@ -4,9 +4,9 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 import psycopg2
-from psycopg2 import sql
+from geocodage_v2 import open_google_maps
 import geocodage
-
+import carte_folium as cf
 
 def connexion(nom_pers=None):
 
@@ -42,8 +42,8 @@ def connexion(nom_pers=None):
         adrs_principale = combo_adrs_principale.get()
 
 
-
-        if not (nom_pers  and prenom_pers  and genre_pers and num_tel and type_tel):
+        #  if not (nom_pers and prenom_pers  and genre_pers and num_tel and type_tel)
+        if not (nom_pers  ):
             messagebox.showwarning("Champs manquants", "Veuillez remplir tous les champs")
             return
 
@@ -81,8 +81,26 @@ def connexion(nom_pers=None):
 
             address = str(num_rue) + " " + complement_num + " " + type_rue + " " + article_rue + " " + nom_rue + ", "  +  code_postal  + " " +commune + ", France"
             print(address)
+
             # Appel à la fonction de geocodage
             lon, lat = geocodage.geocode_address(address)
+
+            # Ouverture Google Maps
+            open_google_maps(lon, lat)
+            if lon is None or lat is None:
+                print("⚠️ Adresse introuvable !")
+            else:
+                print(f"📍 Coordonnées obtenues : {lat}, {lon}")
+
+            # Demander confirmation ou correction
+            choix = input("Le point est-il correct ? (o/n) : ").strip().lower()
+            if choix == 'n':
+                lat = input("Entrez une nouvelle latitude : ")
+                lon = input("Entrez une nouvelle longitude : ")
+
+            # # Avec la carte folium
+            # cf.carteFolium()
+
 
             # Insertion dans la table adresse
             cur.execute(
@@ -127,6 +145,7 @@ def connexion(nom_pers=None):
 
     tk.Label(root, text="Genre de la personne:").pack(pady=5)
     combo_genre_pers = ttk.Combobox(root, values=["masculin", "feminin", "non-binaire"])
+    combo_genre_pers.set("feminin")
     combo_genre_pers.pack(pady=5)
 
     tk.Label(root, text="Date de naissance de la personne:").pack(pady=5)
@@ -135,10 +154,12 @@ def connexion(nom_pers=None):
 
     tk.Label(root, text="Numéro de téléphone:").pack(pady=5)
     entry_num_tel = tk.Entry(root)
+    #entry_num_tel.set("0612345678")
     entry_num_tel.pack(pady=5)
 
     tk.Label(root, text="Type de téléphone: (perso / pro)").pack(pady=5)
     combo_type_tel = ttk.Combobox(root, values=["perso", "pro"])
+    combo_type_tel.set("perso")
     combo_type_tel.pack(pady=5)
 
     # Création de l'interface graphique
@@ -161,6 +182,7 @@ def connexion(nom_pers=None):
 
     tk.Label(root, text="Type de rue:").pack(pady=5)
     entry_type_rue = tk.Entry(root)
+    #entry_type_rue.set("rue")
     entry_type_rue.pack(pady=5)
 
     tk.Label(root, text="Article (de/des...):").pack(pady=5)
