@@ -1,6 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding : utf8 -*-
 
+"""
+    Ce script A pour but d'entrer les caractéristiques des clients ou aidants de bhalex
+
+    TODO:
+
+
+"""
+
+__author__ = "Ludovic Boutignon"
+__authors__ = ["Ludovic Boutignon"]
+__contact__ = "Ludovic.BOUTIGNON@plainecommune.fr"
+__copyright__ = "ludoGeom"
+__credits__ = []
+__date__ = "2025/03/30"
+__deprecated__ = False
+__email__ = "Ludovic Boutignon"
+__license__ = "GPL"
+__maintainer__ = "Ludovic Boutignon"
+__status__ = "Production en cours"
+__version__ = "0.01.02"
+
+
 import tkinter as tk
 from tkinter import messagebox, ttk
 import psycopg2
@@ -27,7 +49,8 @@ def connexion(nom_pers=None):
         prenom_pers = entry_prenom_pers.get()
         genre_pers = combo_genre_pers.get()
         date_naiss = entry_date_naiss_pers.get()
-        num_tel = entry_num_tel.get()
+        #num_tel = entry_num_tel.get()
+        num_tel2 = entry_num_tel2.get()
         type_tel = combo_type_tel.get()
         type_rue = entry_type_rue.get()
         num_rue = entry_num_rue.get()
@@ -61,22 +84,40 @@ def connexion(nom_pers=None):
             )
             id_personne = cur.fetchone()[0]
 
-            # Insertion dans la table telephone
+            # # Insertion dans la table telephone
+            # cur.execute(
+            #     """
+            #     INSERT INTO v1.telephone (numero, type_tel, personne_id)
+            #     VALUES (%s, %s, %s) ;
+            #     """,
+            #     (num_tel, type_tel, id_personne)
+            # )
+
+            # # Insertion dans la table tel_personne
+            # cur.execute(
+            #     """
+            #     INSERT INTO v1.tel_personne (telephone_id, personne_id)
+            #     VALUES (%s, %s) ;
+            #     """,
+            #     (num_tel, id_personne)
+            # )
+
+            # Insertion dans la table tel
             cur.execute(
                 """
-                INSERT INTO v1.telephone (numero, type_tel, personne_id)
+                INSERT INTO v1.tel (numero, type_tel, personne_id)
                 VALUES (%s, %s, %s) ;
                 """,
-                (num_tel, type_tel, id_personne)
+                (num_tel2, type_tel, id_personne)
             )
 
-            # Insertion dans la table tel_personne
+            # Insertion dans la table tel_pers
             cur.execute(
                 """
-                INSERT INTO v1.tel_personne (telephone_id, personne_id)
+                INSERT INTO v1.tel_pers (numero, personne_id)
                 VALUES (%s, %s) ;
                 """,
-                (num_tel, id_personne)
+                (num_tel2, id_personne)
             )
 
             address = str(num_rue) + " " + complement_num + " " + type_rue + " " + article_rue + " " + nom_rue + ", "  +  code_postal  + " " +commune + ", France"
@@ -152,10 +193,15 @@ def connexion(nom_pers=None):
     entry_date_naiss_pers = tk.Entry(root)
     entry_date_naiss_pers.pack(pady=5)
 
-    tk.Label(root, text="Numéro de téléphone:").pack(pady=5)
-    entry_num_tel = tk.Entry(root)
-    #entry_num_tel.set("0612345678")
-    entry_num_tel.pack(pady=5)
+    # tk.Label(root, text="Numéro de téléphone:").pack(pady=5)
+    # entry_num_tel = tk.Entry(root)
+    # #entry_num_tel.set("0612345678")
+    # entry_num_tel.pack(pady=5)
+
+    tk.Label(root, text="Numéro téléphonique:").pack(pady=5)
+    entry_num_tel2 = tk.Entry(root)
+    # entry_num_tel.set("0612345678")
+    entry_num_tel2.pack(pady=5)
 
     tk.Label(root, text="Type de téléphone: (perso / pro)").pack(pady=5)
     combo_type_tel = ttk.Combobox(root, values=["perso", "pro"])

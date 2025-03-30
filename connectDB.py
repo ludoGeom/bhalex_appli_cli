@@ -1,5 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding : utf8 -*-
+#!/usr/bin/env python3
+# -*- coding : utf8 -*-
+
+"""
+    Ce script A pour but d'entrer les caractéristiques des clients ou aidants de bhalex
+
+    TODO:
+
+
+"""
+
+__author__ = "Ludovic Boutignon"
+__authors__ = ["Ludovic Boutignon"]
+__contact__ = "Ludovic.BOUTIGNON@plainecommune.fr"
+__copyright__ = "ludoGeom"
+__credits__ = []
+__date__ = "2025/03/30"
+__deprecated__ = False
+__email__ = "Ludovic Boutignon"
+__license__ = "GPL"
+__maintainer__ = "Ludovic Boutignon"
+__status__ = "Production en cours"
+__version__ = "0.01.02"
 
 import tkinter as tk
 from tkinter import messagebox, ttk
