@@ -1,4 +1,4 @@
-import geocodage
+import geocodage_v2 as geo
 import tkinter as tk
 from tkinter import messagebox, ttk
 from geocodage_v2 import open_google_maps
@@ -15,7 +15,7 @@ def verif_adresse(adresse):
         tuple: (longitude, latitude) ou None en cas d'erreur
     """
     # Appel à la fonction de geocodage
-    lon, lat = geocodage.geocode_address(adresse)
+    lon, lat = geo.geocode_address(adresse)
 
     # Ouverture Google Maps
     open_google_maps(lon, lat)

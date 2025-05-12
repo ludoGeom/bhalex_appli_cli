@@ -22,8 +22,6 @@ __version__ = "0.03.3"
 import tkinter as tk
 from tkinter import messagebox, ttk
 import psycopg2
-from geocodage_v2 import open_google_maps
-import geocodage
 import verifier_adresse_v3 as va
 
 

@@ -25,6 +25,4 @@ def geocode_address(adresse):
         print(f"Erreur lors de l'appel à l'API : {e}")
         return None, None
 
-# Carte avec folium
-
 #geocode_address("5 rue emile blemont, 75018 paris")
