@@ -24,9 +24,10 @@ from tkinter import messagebox, ttk
 import psycopg2
 from geocodage_v2 import open_google_maps
 import geocodage
-import carte_folium as cf
+import verifier_adresse as va
 
-def connexion(nom_pers=None):
+
+def connexion(nom_pers=None, geocodage_bon=None, address=None):
 
     # Connexion à la base de données
     DB_CONFIG = {
@@ -40,7 +41,7 @@ def connexion(nom_pers=None):
 
 
     #Fonction pour insérer un client, produit et un tarif avec géocodage
-    def inserer_personne_tel_adrs():
+    def inserer_personne_tel_adrs(lon=None, lat=None):
         nom_pers = entry_nom_pers.get()
         prenom_pers = entry_prenom_pers.get()
         genre_pers = combo_genre_pers.get()
@@ -58,7 +59,8 @@ def connexion(nom_pers=None):
         code_postal = entry_code_postal.get()
         commune = entry_commune.get()
         adrs_principale = combo_adrs_principale.get()
-        geocodage_bon = entry_geocodage_bon.get()
+        
+
 
 
         #  if not (nom_pers and prenom_pers  and genre_pers and num_tel and type_tel)
@@ -102,32 +104,8 @@ def connexion(nom_pers=None):
             address = str(num_rue) + " " + complement_num + " " + type_rue + " " + article_rue + " " + nom_rue + ", "  +  code_postal  + " " +commune + ", France"
             print(address)
 
-            # Appel à la fonction de geocodage
-            lon, lat = geocodage.geocode_address(address)
-
-            # Ouverture Google Maps
-            open_google_maps(lon, lat)
-            if lon is None or lat is None:
-                print("⚠️ Adresse introuvable !")
-            else:
-                print(f"📍 Coordonnées obtenues : {lat}, {lon}")
-
-
-
-            # Demander confirmation ou correction
-            #choix = input("Le point est-il correct ? (o/n) : ").strip().lower()
-            choix = geocodage_bon
-            if choix == 'n' or choix == "N":
-                lat = input("Entrez une nouvelle latitude : ")
-                lon = input("Entrez une nouvelle longitude : ")
-            else:
-                pass
-
-            # Bouton pour valider l'insertion
-            tk.Button(root, text="Oui", command=choix).pack(pady=20)
-            # # Avec la carte folium
-            # cf.carteFolium()
-
+            # Appel à la fonction 
+            #lon, lat = va.verif_adresse(address)
 
             # Insertion dans la table adresse
             cur.execute(
@@ -135,10 +113,12 @@ def connexion(nom_pers=None):
                 INSERT INTO v1.adresse (type_rue , num_rue, complement_num, article_rue, nom_rue, num_bati, hall, num_appart, code_postal, commune, geom)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, public.ST_SetSRID(public.ST_Point(%s::double precision, %s::double precision), 4326)) RETURNING id_adresse;
                 """,
-                (type_rue , num_rue, complement_num, article_rue, nom_rue, num_bati, hall, num_appart, code_postal, commune,  float(lon), float(lat))
+                (type_rue, num_rue, complement_num, article_rue, nom_rue, num_bati, hall, num_appart, code_postal,
+                 commune,float(lon), float(lat))
+        
             )
             id_adresse = cur.fetchone()[0]
-
+                
             # Insertion dans la table localisation
             cur.execute(
                 """
@@ -241,17 +221,23 @@ def connexion(nom_pers=None):
     #entry_commune.set("Paris")  # Valeur par défaut
     entry_commune.pack(pady=5)
 
-    
-    # Bouton pour valider l'insertion
-    tk.Button(root, text="Ajouter la personne", command=inserer_personne_tel_adrs).pack(pady=20)
+
+
+    # tk.Label(root, text="L'adresse est elle correcte? (O / N)").pack(pady=5)
+    # combo_geocodage_bon = ttk.Combobox(root, values=["Oui", "Non"])
+    # combo_geocodage_bon.set("Oui")
+    # combo_geocodage_bon.pack(pady=5)
 
     # Création de l'interface graphique
     root = tk.Tk()
-    root.title("Situation de l'adresse")
+    root.title("Gestion des personnes")
     root.geometry("400x500")
-    tk.Label(root, text="L'adresse est elle correcte? (O / N)").pack(pady=5)
-    entry_geocodage_bon = tk.Entry(root)
-    entry_geocodage_bon.pack(pady=5)
+    # Bouton pour vérifier l'adresse
+    #tk.Button(root, text="Vérifier l'adresse", command=va.verif_adresse(address)).pack(pady=20)
+
+    # Bouton pour valider l'insertion
+    tk.Button(root, text="Ajouter la personne", command=inserer_personne_tel_adrs).pack(pady=20)
+
 
     root.mainloop()
 
