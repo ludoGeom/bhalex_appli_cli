@@ -6,7 +6,7 @@ Ce script a pour but d'acter une adhesion
 
 __author__ = "Ludovic Boutignon"
 __authors__ = ["Ludovic Boutignon"]
-__contact__ = "Ludovic.BOUTIGNON@plainecommune.fr"
+__contact__ = "ludoinform@gmail.com"
 __copyright__ = "Bhalex"
 __credits__ = []
 __date__ = "2025/05/18"

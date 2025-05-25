@@ -7,7 +7,7 @@ Ce script a pour but d'entrer dans la base de nouveaux clients
 
 __author__ = "Ludovic Boutignon"
 __authors__ = ["Ludovic Boutignon"]
-__contact__ = "Ludovic.BOUTIGNON@plainecommune.fr"
+__contact__ = "ludoinform@gmail.com"
 __copyright__ = "Bhalex"
 __credits__ = []
 __date__ = "2025/05/05"
@@ -22,8 +22,6 @@ __version__ = "0.03.2"
 import tkinter as tk
 from tkinter import messagebox, ttk
 import psycopg2
-from geocodage_v2 import open_google_maps
-import geocodage
 import verifier_adresse_v3 as va
 
 

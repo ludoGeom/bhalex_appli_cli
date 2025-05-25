@@ -6,12 +6,12 @@ Ce script a pour but de modifier les données d'une personne
 
 __author__ = "Ludovic Boutignon"
 __authors__ = ["Ludovic Boutignon"]
-__contact__ = "Ludovic.BOUTIGNON@plainecommune.fr"
+__contact__ = "ludoinform@gmail.com"
 __copyright__ = "Bhalex"
 __credits__ = []
 __date__ = "2025/05/18"
 __deprecated__ = False
-__email__ = "Ludoinform@gmail.com"
+__email__ = "ludoinform@gmail.com"
 __license__ = "GPL"
 __maintainer__ = "Ludovic Boutignon"
 __status__ = "Production en cours"

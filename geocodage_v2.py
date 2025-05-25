@@ -1,6 +1,4 @@
 import requests
-import psycopg2
-from psycopg2 import sql
 import webbrowser
 
 # Configuration de l'API et de PostgreSQL
