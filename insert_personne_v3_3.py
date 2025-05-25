@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf8 -*-
 """
-Ce script a pour but d'entrer dans la base de nouveaux clients ou soignants
+Ce script a pour but d'entrer dans la base de nouveaux clients ou aidants
 
 """
 
@@ -17,7 +17,9 @@ __license__ = "GPL"
 __maintainer__ = "Ludovic Boutignon"
 __status__ = "Production en cours"
 __version__ = "0.03.3"
-
+"""
+v0.03.3: Ajout de la table adhesion
+"""
 
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -61,7 +63,9 @@ def connexion(nom_pers=None, geocodage_bon=None, address=None):
         ("Nom:", "entry_nom_pers"),
         ("Prénom:", "entry_prenom_pers"),
         ("Date de naissance:", "entry_date_naiss_pers"),
-        ("Numéro de téléphone:", "entry_num_tel")
+        ("Numéro de téléphone:", "entry_num_tel"),
+        ("Date d'adhesion:", "entry_date_adhesion"),
+        ("Montant payé:", "entry_prix_paye_ad")
     ]
 
     # Créer un dictionnaire pour stocker les références aux widgets
@@ -75,8 +79,8 @@ def connexion(nom_pers=None, geocodage_bon=None, address=None):
 
     # Combobox pour le genre
     ttk.Label(tab_personne, text="Genre:").grid(row=len(fields_personne), column=0, pady=5, padx=5, sticky="e")
-    combo_genre_pers = ttk.Combobox(tab_personne, values=["masculin", "feminin", "non-binaire"])
-    combo_genre_pers.set("feminin")
+    combo_genre_pers = ttk.Combobox(tab_personne, values=["Masculin", "Féminin", "Non-binaire"])
+    combo_genre_pers.set("Féminin")
     combo_genre_pers.grid(row=len(fields_personne), column=1, pady=5, padx=5, sticky="w")
 
     # Combobox pour le type de téléphone
@@ -203,6 +207,8 @@ def connexion(nom_pers=None, geocodage_bon=None, address=None):
                 commune = entry_widgets["entry_commune"].get()
                 aidant = combo_aidant.get()
                 adrs_principale = combo_adrs_principale.get()
+                date_adhesion = entry_widgets["entry_date_adhesion"].get()
+                prix_paye_ad = entry_widgets["entry_prix_paye_ad"].get()
 
                 if adrs_principale == "Oui":
                     adrs_principale = True
@@ -229,24 +235,26 @@ def connexion(nom_pers=None, geocodage_bon=None, address=None):
                     id_personne = cur.fetchone()[0]
                     print(f"Personne insérée avec succès, id: {id_personne}")
 
-                # Insertion dans la table telephone
-                cur.execute(
-                    """
-                    INSERT INTO v1.telephone (numero, type_tel)
-                    VALUES (%s, %s) RETURNING id_telephone ;
-                    """,
-                    (entry_widgets['entry_num_tel'].get(), type_tel)
-                )
-                id_telephone = cur.fetchone()[0]
+                # Insertion du telephone
+                if num_tel:
+                    # Insertion dans la table telephone
+                    cur.execute(
+                        """
+                        INSERT INTO v1.telephone (numero, type_tel)
+                        VALUES (%s, %s) RETURNING id_telephone ;
+                        """,
+                        (entry_widgets['entry_num_tel'].get(), type_tel)
+                    )
+                    id_telephone = cur.fetchone()[0]
 
-                # Insertion dans la table tel_personne
-                cur.execute(
-                    """
-                    INSERT INTO v1.tel_personne (telephone_id, personne_id)
-                    VALUES (%s, %s) ;
-                    """,
-                    (id_telephone , id_personne)
-                )
+                    # Insertion dans la table tel_personne
+                    cur.execute(
+                        """
+                        INSERT INTO v1.tel_personne (telephone_id, personne_id)
+                        VALUES (%s, %s) ;
+                        """,
+                        (id_telephone , id_personne)
+                    )
 
                 # Insertion dans la table localisation
                 cur.execute(
@@ -256,19 +264,40 @@ def connexion(nom_pers=None, geocodage_bon=None, address=None):
                     """,
                     (adrs_principale, id_personne, id_adresse)
                 )
+
+                # Insertion dans la table adhesion
+                if date_adhesion:
+                    if prix_paye_ad:
+                        cur.execute(
+                            """
+                            INSERT INTO v1.adhesion (date_adhesion, prix_paye,personne_id)
+                            VALUES (%s, %s, %s) ;
+                            """,
+                            (date_adhesion, prix_paye_ad, id_personne)
+                        )
+                        id_adhesion = cur.fetchone()[0]
+                    else:
+                        cur.execute(
+                            """
+                            INSERT INTO v1.adhesion (date_adhesion, prix_paye,personne_id)
+                            VALUES (%s, %s, %s) ;
+                            """,
+                            (date_adhesion, 0.0, id_personne)
+                        )
+                        id_adhesion = cur.fetchone()[0]
             except Exception as e:
                 messagebox.showerror("Erreur", f"Une erreur est survenue : {e}")
             try:
                 conn.commit()
                 messagebox.showinfo("Succès", "Personne ajoutée avec succès")
                 #Réinitialisation du formulaire
-                for widget in entry_widgets.values():
-                    widget.delete(0, tk.END)
-                combo_genre_pers.set('')
-                combo_type_tel.set('')
-                combo_adrs_principale.set('')
-                combo_aidant.set('')
-                resume_text.delete(1.0, tk.END)
+                # for widget in entry_widgets.values():
+                #     widget.delete(0, tk.END)
+                # combo_genre_pers.set('')
+                # combo_type_tel.set('')
+                # combo_adrs_principale.set('')
+                # combo_aidant.set('')
+                # resume_text.delete(1.0, tk.END)
 
             except psycopg2.Error as e:
                 conn.rollback()
