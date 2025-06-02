@@ -4,3 +4,5 @@ Appli liée à la BDD sap (schema: v1)
 Créer le profil d'une personne (insert_personne_v3_3.py)
 Modifier les données d'une personne (modif_personne_v1.py)
 Acter une adhésion (adhesion_v1.py)
+
+réunis dans lanceur_appli.py (2/06/2025)
