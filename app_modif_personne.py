@@ -28,15 +28,16 @@ from geocodage_v2 import open_google_maps
 def create_app(parent):
     print("App2 lancée")
     # Crée une fenêtre fille (Toplevel) liée à la fenêtre parente
-    top = tk.Toplevel(parent)
-    top.title("Application Modifier personne")
-
-    # notebook = ttk.Notebook(top)
-    # notebook.pack(pady=10, expand=True)
-
-    # Ajoute le contenu de l'application
-    label = tk.Label(top, text="Modifier une personne")
-    label.pack(padx=20, pady=20)
+    # top = tk.Toplevel(parent)
+    # top.title("Application Modifier personne")
+    #
+    # # notebook = ttk.Notebook(top)
+    # # notebook.pack(pady=10, expand=True)
+    #
+    # # Ajoute le contenu de l'application
+    # label = tk.Label(top, text="Modifier une personne")
+    # label.pack(padx=20, pady=20)
+    # label.configure(bg="#96c0eb")
 
     def open_google_maps(url):
         """Ouvre l'URL dans le navigateur par défaut"""
@@ -63,7 +64,7 @@ def create_app(parent):
     class Application(tk.Tk):
         def __init__(self):
             super().__init__()
-            self.title("Recherche de Personnes")
+            self.title("Recherche d'une Personne pour modification")
             self.geometry("1200x600")
 
             # Configuration du style
@@ -81,7 +82,7 @@ def create_app(parent):
             self.nom_entry = ttk.Entry(search_frame, width=30)
             self.nom_entry.pack(side=tk.LEFT, padx=5)
 
-            search_btn = ttk.Button(search_frame, text="Rechercher", command=self.execute_search)
+            search_btn = tk.Button(search_frame, text="Rechercher", command=self.execute_search,  bg="#fbca52", fg="white", activebackground="blue")
             search_btn.pack(side=tk.LEFT, padx=5)
 
             # Treeview avec scrollbars
@@ -113,7 +114,7 @@ def create_app(parent):
                        ("Rue", 150), ("Appartement", 100), ("N° Bati", 60), ("Hall", 60), ("Code Postal", 90),
                        ("Commune", 120)
                        ]
-            edit_btn = ttk.Button(self, text="Modifier la sélection", command=self.edit_selected)
+            edit_btn = tk.Button(self, text="Modifier la sélection", command=self.edit_selected,  bg="#fbca52", fg="white", activebackground="#ff0000")
             edit_btn.pack(pady=5)
 
             for idx, (text, width) in enumerate(headers):
@@ -383,13 +384,13 @@ def create_app(parent):
             self.button_frame.pack(fill=tk.X, padx=5, pady=10)
 
             # Bouton de vérification
-            self.verify_btn = ttk.Button(self.button_frame, text="Vérifier l'adresse",
-                                         command=self.verify_address)
+            self.verify_btn = tk.Button(self.button_frame, text="Vérifier l'adresse",
+                                         command=self.verify_address,  bg="#fbca52", fg="white", activebackground="#ff0000")
             self.verify_btn.pack(side=tk.LEFT, padx=5)
 
             # Bouton de sauvegarde (initialement désactivé)
-            self.save_btn = ttk.Button(self.button_frame, text="Enregistrer",
-                                       command=self.save, state='disabled')
+            self.save_btn = tk.Button(self.button_frame, text="Enregistrer",
+                                       command=self.save, state='disabled', bg="#42d507", fg="white", activebackground="#42d507")
             self.save_btn.pack(side=tk.LEFT, padx=5)
 
             # Label pour le statut
@@ -409,14 +410,18 @@ def create_app(parent):
             button_container.pack(side=tk.TOP, pady=5)
 
             # Bouton Oui
-            self.yes_btn = ttk.Button(button_container, text="Oui",
-                                      command=self.on_yes_click)
+            self.yes_btn = tk.Button(button_container, text="Oui",
+                                      command=self.on_yes_click, bg="#42d507", fg="white", activebackground="#42d507")
             self.yes_btn.pack(side=tk.LEFT, padx=5)
 
             # Bouton Non
-            self.no_btn = ttk.Button(button_container, text="Non",
-                                     command=self.on_no_click)
+            self.no_btn = tk.Button(button_container, text="Non",
+                                     command=self.on_no_click,  bg="#ff0000", fg="white", activebackground="#ff0000")
             self.no_btn.pack(side=tk.LEFT, padx=5)
+
+            # bouton fermer
+            #btn_close = tk.Button(top, text="Fermer", command=top.destroy, bg="#ff0000", fg="white",activebackground="#ff0000")
+            #btn_close.pack(pady=10)
 
         def on_yes_click(self):
             print("Bouton Oui cliqué")
@@ -580,12 +585,12 @@ def create_app(parent):
                     entry.grid(row=i, column=1, padx=5, pady=2)
                     entry.insert(0, values[i])
                     self.entries.append(entry)
-            save_btn = tk.Button(self, text="Enregistrer", command=self.save)
+            save_btn = tk.Button(self, text="Enregistrer", command=self.save, bg="#42d507", fg="white", activebackground="#42d507")
             save_btn.grid(row=len(labels), column=0, columnspan=2, pady=10)
             addr_btn = tk.Button(self, text="Modifier l'adresse",
                                  command=lambda: self.open_address_edit(self.values[0],
                                                                         self.values[8:] if len(
-                                                                            self.values) > 8 else [""] * 10))
+                                                                            self.values) > 8 else [""] * 10), bg= "#fbca52", fg="white", activebackground="#ff0000")
             addr_btn.grid(row=len(labels) + 1, column=0, columnspan=2, pady=10)
 
         def open_address_edit(self, personne_id, current_values):
@@ -629,9 +634,7 @@ def create_app(parent):
     #     app.mainloop()
     Application()
 
-    # bouton fermer
-    btn_close = tk.Button(top, text="Fermer", command=top.destroy)
-    btn_close.pack(pady=10)
+
 
 #Permet de tester l'application indépendamment
 # if __name__ == "__main__":

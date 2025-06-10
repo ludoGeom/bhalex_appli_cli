@@ -75,7 +75,7 @@ def verif_adresse(adresse):
     entry_longitude.pack(pady=5)
 
     # Bouton de validation
-    tk.Button(verification_window, text="Valider", command=valider_coordonnees).pack(pady=20)
+    tk.Button(verification_window, text="Valider", command=valider_coordonnees, bg="#42d507", fg="white", activebackground="#42d507").pack(pady=20)
 
     # Attendre que la fenêtre soit fermée
     verification_window.wait_window()

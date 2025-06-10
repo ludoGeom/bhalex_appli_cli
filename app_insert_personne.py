@@ -38,8 +38,9 @@ def create_app(parent):
     # notebook.pack(pady=10, expand=True)
 
     # Ajoute le contenu de l'application
-    label = tk.Label(top, text="Insérer une personne")
-    label.pack(padx=20, pady=20)
+    label = tk.Label(top, text="Insérer une personne dans la base de données")
+    label.pack(padx=20, pady=40)
+
 
     def connexion(nom_pers=None, geocodage_bon=None, address=None):
         global validated_coordinates
@@ -58,10 +59,12 @@ def create_app(parent):
         #top = tk.Toplevel(parent)
         top.title("Gestion des personnes et adresses")
         top.geometry("500x600")  # Taille fixe pour la fenêtre
+        top.configure(bg="#96c0eb")
 
         # Création du notebook (gestionnaire d'onglets)
         notebook = ttk.Notebook(top)
         notebook.pack(pady=10, expand=True)
+
 
         # Création des onglets
         tab_personne = ttk.Frame(notebook)
@@ -371,8 +374,8 @@ def create_app(parent):
                 return False
 
         # Boutons de validation
-        ttk.Button(tab_validation, text="Vérifier l'adresse", command=verify_address).pack(pady=20)
-        ttk.Button(tab_validation, text="Valider et enregistrer", command=get_form_data).pack(pady=20)
+        tk.Button(tab_validation, text="Vérifier l'adresse", command=verify_address, bg= "#fbca52", fg="white", activebackground="#ff0000").pack(pady=20)
+        tk.Button(tab_validation, text="Valider et enregistrer", command=get_form_data, bg="#42d507", fg="white", activebackground="#42d507").pack(pady=20)
 
         # Résumé des informations
         ttk.Label(tab_validation, text="Résumé des informations:").pack(pady=20)
@@ -404,7 +407,7 @@ def create_app(parent):
     connexion()
 
     # bouton fermer
-    btn_close = tk.Button(top, text="Fermer", command=top.destroy)
+    btn_close = tk.Button(top, text="Fermer", command=top.destroy,  bg="#ff0000", fg="white", activebackground="#ff0000")
     btn_close.pack(pady=10)
 
 

@@ -26,15 +26,17 @@ import psycopg2
 def create_app(parent):
     print("App3 lancée")
     # Crée une fenêtre fille (Toplevel) liée à la fenêtre parente
-    top = tk.Toplevel(parent)
-    top.title("Application Acter une adhésion")
+    #top = tk.Toplevel(parent)
+    #top.title("Application Acter une adhésion")
 
     # notebook = ttk.Notebook(top)
     # notebook.pack(pady=10, expand=True)
 
     # Ajoute le contenu de l'application
-    label = tk.Label(top, text="Données d'adhésion")
-    label.pack(padx=20, pady=20)
+    #label = tk.Label(top, text="Données d'adhésion")
+    #label.pack(padx=20, pady=20)
+    #top.configure(bg="#96c0eb")
+
 
     def connexion():
         DB_CONFIG = {
@@ -64,6 +66,7 @@ def create_app(parent):
 
             self.create_widgets()
 
+
         def create_widgets(self):
             # Frame de recherche
             search_frame = ttk.Frame(self)
@@ -73,7 +76,7 @@ def create_app(parent):
             self.nom_entry = ttk.Entry(search_frame, width=30)
             self.nom_entry.pack(side=tk.LEFT, padx=5)
 
-            search_btn = ttk.Button(search_frame, text="Rechercher", command=self.execute_search)
+            search_btn = tk.Button(search_frame, text="Rechercher", command=self.execute_search,  bg="#fbca52", fg="white", activebackground="blue")
             search_btn.pack(side=tk.LEFT, padx=5)
 
             # Treeview avec scrollbars
@@ -118,7 +121,7 @@ def create_app(parent):
             self.tree_frame.grid_columnconfigure(0, weight=1)
 
             # Bouton de modification
-            edit_btn = ttk.Button(self, text="Modifier la sélection", command=self.edit_selected)
+            edit_btn = tk.Button(self, text="Modifier la sélection", command=self.edit_selected, bg= "#fbca52", fg="white", activebackground="#ff0000")
             edit_btn.pack(pady=5)
 
         def format_phone(self, number):
@@ -322,8 +325,8 @@ def create_app(parent):
             btn_frame = ttk.Frame(main_frame)
             btn_frame.grid(row=7, column=0, columnspan=2, pady=10)
 
-            ttk.Button(btn_frame, text="Enregistrer", command=self.save).pack(side=tk.LEFT, padx=5)
-            ttk.Button(btn_frame, text="Annuler", command=self.destroy).pack(side=tk.LEFT, padx=5)
+            tk.Button(btn_frame, text="Enregistrer", command=self.save, bg="#42d507", fg="white", activebackground="#42d507").pack(side=tk.LEFT, padx=5)
+            tk.Button(btn_frame, text="Annuler", command=self.destroy, bg="#ff0000", fg="white", activebackground="#ff0000").pack(side=tk.LEFT, padx=5)
 
             # Rendre la fenêtre modale
             self.transient(parent)
@@ -366,8 +369,8 @@ def create_app(parent):
     Application()
 
     # Exemple de bouton
-    btn_close = tk.Button(top, text="Fermer", command=top.destroy)
-    btn_close.pack(pady=10)
+    #btn_close = tk.Button(top, text="Fermer", command=top.destroy, bg="#ff0000", fg="white", activebackground="#ff0000")
+    #btn_close.pack(pady=10)
 
 if __name__ == "__main__":
     root= tk.Tk()
