@@ -39,7 +39,7 @@ def connexion(nom_pers=None):
         'password': 'test',
         'host': 'localhost',
         'port': '5432',
-        'options': '-c search_path=v1'
+        'options': '-c search_path=v2'
     }
 
     try:
@@ -124,11 +124,11 @@ class Application(tk.Tk):
                     SELECT id_personne, prenom, nom_pers, date_naissance, genre, aidant, 
                            t.numero, t.type_tel, ad.num_rue, ad.complement_num, ad.type_rue, ad.article_rue, 
                            ad.nom_rue, ad.num_appart, ad.num_bati, ad.hall, ad.code_postal, ad.commune
-                    FROM v1.personne
-                    LEFT JOIN v1.localisation AS l ON l.personne_id = id_personne
-                    LEFT JOIN v1.adresse AS ad ON ad.id_adresse = l.adresse_id
-                    LEFT JOIN v1.tel_personne AS tp ON tp.personne_id = id_personne
-                    LEFT JOIN v1.telephone AS t ON t.id_telephone = tp.telephone_id
+                    FROM v2.personne
+                    LEFT JOIN v2.localisation AS l ON l.personne_id = id_personne
+                    LEFT JOIN v2.adresse AS ad ON ad.id_adresse = l.adresse_id
+                    LEFT JOIN v2.tel_personne AS tp ON tp.personne_id = id_personne
+                    LEFT JOIN v2.telephone AS t ON t.id_telephone = tp.telephone_id
                     WHERE nom_pers = %s
                                 """
                 cur.execute(query, (nom,))
@@ -196,7 +196,7 @@ class Application(tk.Tk):
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                               UPDATE v1.personne
+                               UPDATE v2.personne
                                SET prenom=%s, nom_pers=%s, date_naissance=%s, genre=%s, aidant=%s
                                WHERE id_personne=%s
                            """, (
@@ -216,8 +216,8 @@ class Application(tk.Tk):
                     cur.execute("""
                                     SELECT t.id_telephone, t.numero, t.type_tel
 
-                                    FROM v1.tel_personne tp
-                                    JOIN v1.telephone t ON t.id_telephone = tp.telephone_id
+                                    FROM v2.tel_personne tp
+                                    JOIN v2.telephone t ON t.id_telephone = tp.telephone_id
                                     WHERE tp.personne_id = %s
                                 """, (id_personne,))
                     tel_existant = cur.fetchone()
@@ -225,14 +225,14 @@ class Application(tk.Tk):
                     if tel_existant:
                         # Mise à jour du numéro existant
                         cur.execute("""
-                                        UPDATE v1.telephone 
+                                        UPDATE v2.telephone 
                                         SET numero = %s , type_tel = %s
                                         WHERE id_telephone = %s
                                     """, (telephone, type_tel, tel_existant[0]))
                     else:
                         # Création d'un nouveau numéro
                         cur.execute("""
-                                        INSERT INTO v1.telephone (numero, type_tel)
+                                        INSERT INTO v2.telephone (numero, type_tel)
                                         VALUES (%s, %s)
                                         RETURNING id_telephone
                     """,
@@ -241,14 +241,14 @@ class Application(tk.Tk):
 
                         # Création du lien avec la personne
                         cur.execute("""
-                                        INSERT INTO v1.tel_personne (personne_id, telephone_id)
+                                        INSERT INTO v2.tel_personne (personne_id, telephone_id)
                                         VALUES (%s, %s)
                                     """, (id_personne, nouveau_tel_id))
 
                 # Met à jour les autres tables selon la logique de ton modèle
                 # Exemples :
-                # cur.execute("UPDATE v1.telephone SET numero=%s WHERE ...", (new_values[5], ...))
-                # cur.execute("UPDATE v1.adresse SET num_rue=%s, ... WHERE ...", (...))
+                # cur.execute("UPDATE v2.telephone SET numero=%s WHERE ...", (new_values[5], ...))
+                # cur.execute("UPDATE v2.adresse SET num_rue=%s, ... WHERE ...", (...))
                 # À adapter selon ta clé primaire réelle et tes besoins
 
             conn.commit()
@@ -276,7 +276,7 @@ class Application(tk.Tk):
                 # Recherche de l'adresse liée à la personne
                 cur.execute("""
                     SELECT adresse_id 
-                    FROM v1.localisation 
+                    FROM v2.localisation 
                     WHERE personne_id = %s
                 """, (personne_id,))
                 adresse_id = cur.fetchone()
@@ -284,7 +284,7 @@ class Application(tk.Tk):
                     adresse_id = adresse_id[0]
                     # Mise à jour de l'adresse
                     cur.execute("""
-                        UPDATE v1.adresse SET
+                        UPDATE v2.adresse SET
                             num_rue = %s,
                             complement_num = %s,
                             type_rue = %s,
@@ -304,7 +304,7 @@ class Application(tk.Tk):
                 else:
                     # Création d'une nouvelle adresse
                     cur.execute("""
-                        INSERT INTO v1.adresse
+                        INSERT INTO v2.adresse
                         (num_rue, complement_num, type_rue, article_rue, nom_rue,
                          num_appart, num_bati, hall, code_postal, commune)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -316,7 +316,7 @@ class Application(tk.Tk):
                     adresse_id = cur.fetchone()[0]
                     # Création du lien localisation
                     cur.execute("""
-                        INSERT INTO v1.localisation (personne_id, adresse_id)
+                        INSERT INTO v2.localisation (personne_id, adresse_id)
                         VALUES (%s, %s)
                     """, (personne_id, adresse_id))
                 conn.commit()

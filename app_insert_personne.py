@@ -53,7 +53,7 @@ def create_app(parent):
             'password': 'test',
             'host': 'localhost',
             'port': '5432',
-            'options': '-c search_path=v1'
+            'options': '-c search_path=v2'
         }
         # root = tk.Tk()
         #top = tk.Toplevel(parent)
@@ -185,7 +185,7 @@ def create_app(parent):
                     print("Insertion de l'adresse...")
                     cur.execute(
                         """
-                        INSERT INTO v1.adresse ( type_rue, num_rue, complement_num, article_rue, nom_rue, 
+                        INSERT INTO v2.adresse ( type_rue, num_rue, complement_num, article_rue, nom_rue, 
                                               num_bati, hall, num_appart, code_postal, commune, geom)
                         VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
                                public.ST_SetSRID(public.ST_MakePoint(%s::double precision, %s::double precision), 4326))
@@ -236,7 +236,7 @@ def create_app(parent):
                     if date_naiss:
                         cur.execute(
                             """
-                            INSERT INTO v1.personne (nom_pers, prenom, genre, date_naissance, aidant)
+                            INSERT INTO v2.personne (nom_pers, prenom, genre, date_naissance, aidant)
                             VALUES (%s, %s, %s, %s, %s) RETURNING id_personne;
                             """,
                             (nom_pers, prenom_pers, genre_pers, date_naiss, aidant)
@@ -245,7 +245,7 @@ def create_app(parent):
                     else:
                         cur.execute(
                             """
-                            INSERT INTO v1.personne (nom_pers, prenom, genre, aidant)
+                            INSERT INTO v2.personne (nom_pers, prenom, genre, aidant)
                             VALUES (%s, %s, %s, %s) RETURNING id_personne;
                             """,
                             (nom_pers, prenom_pers, genre_pers, aidant)
@@ -258,7 +258,7 @@ def create_app(parent):
                         # Insertion dans la table telephone
                         cur.execute(
                             """
-                            INSERT INTO v1.telephone (numero, type_tel)
+                            INSERT INTO v2.telephone (numero, type_tel)
                             VALUES (%s, %s) RETURNING id_telephone ;
                             """,
                             (entry_widgets['entry_num_tel'].get(), type_tel)
@@ -268,7 +268,7 @@ def create_app(parent):
                         # Insertion dans la table tel_personne
                         cur.execute(
                             """
-                            INSERT INTO v1.tel_personne (telephone_id, personne_id)
+                            INSERT INTO v2.tel_personne (telephone_id, personne_id)
                             VALUES (%s, %s) ;
                             """,
                             (id_telephone, id_personne)
@@ -277,7 +277,7 @@ def create_app(parent):
                     # Insertion dans la table localisation
                     cur.execute(
                         """
-                        INSERT INTO v1.localisation (adrs_principale, personne_id, adresse_id)
+                        INSERT INTO v2.localisation (adrs_principale, personne_id, adresse_id)
                         VALUES (%s, %s, %s) ;
                         """,
                         (adrs_principale, id_personne, id_adresse)
@@ -288,7 +288,7 @@ def create_app(parent):
                         if prix_paye_ad:
                             cur.execute(
                                 """
-                                INSERT INTO v1.adhesion (date_adhesion, prix_paye,personne_id)
+                                INSERT INTO v2.adhesion (date_adhesion, prix_paye,personne_id)
                                 VALUES (%s, %s, %s) ;
                                 """,
                                 (date_adhesion, prix_paye_ad, id_personne)
@@ -297,7 +297,7 @@ def create_app(parent):
                         else:
                             cur.execute(
                                 """
-                                INSERT INTO v1.adhesion (date_adhesion, prix_paye,personne_id)
+                                INSERT INTO v2.adhesion (date_adhesion, prix_paye,personne_id)
                                 VALUES (%s, %s, %s) ;
                                 """,
                                 (date_adhesion, 0.0, id_personne)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf8 -*-
 """
-Ce script a pour but d'acter une adhesion il se base sur le script adhesion_v1.py
+Ce script a pour but d'acter une adhesion il se base sur le script adhesion_v2.py
 """
 
 __author__ = "Ludovic Boutignon"
@@ -45,7 +45,7 @@ def create_app(parent):
             'password': 'test',
             'host': 'localhost',
             'port': '5432',
-            'options': '-c search_path=v1'
+            'options': '-c search_path=v2'
         }
 
         try:
@@ -148,13 +148,13 @@ def create_app(parent):
                         SELECT p.id_personne, p.prenom, p.nom_pers, p.date_naissance, p.genre, p.aidant, 
                                t.numero, t.type_tel, ad.date_adhesion, ad.prix_paye, 
                                (SELECT prix_tarif_ad
-                                FROM v1.tarif_adhesion as ta
-                                WHERE date_tarif_ad = (SELECT MAX(ta2.date_tarif_ad) FROM v1.tarif_adhesion as ta2)) as prix_a_payer
-                        FROM v1.personne p
-                        LEFT JOIN v1.localisation AS l ON l.personne_id = p.id_personne                  
-                        LEFT JOIN v1.tel_personne AS tp ON tp.personne_id = p.id_personne
-                        LEFT JOIN v1.telephone AS t ON t.id_telephone = tp.telephone_id
-                        LEFT JOIN v1.adhesion AS ad ON ad.personne_id = p.id_personne
+                                FROM v2.tarif_adhesion as ta
+                                WHERE date_tarif_ad = (SELECT MAX(ta2.date_tarif_ad) FROM v2.tarif_adhesion as ta2)) as prix_a_payer
+                        FROM v2.personne p
+                        LEFT JOIN v2.localisation AS l ON l.personne_id = p.id_personne                  
+                        LEFT JOIN v2.tel_personne AS tp ON tp.personne_id = p.id_personne
+                        LEFT JOIN v2.telephone AS t ON t.id_telephone = tp.telephone_id
+                        LEFT JOIN v2.adhesion AS ad ON ad.personne_id = p.id_personne
                         WHERE p.nom_pers = %s
                     """
                     cur.execute(query, (nom,))
@@ -207,10 +207,10 @@ def create_app(parent):
                     # D'abord, récupérons le dernier tarif d'adhésion
                     cur.execute("""
                         SELECT id_tarif_ad, prix_tarif_ad
-                        FROM v1.tarif_adhesion as ta
+                        FROM v2.tarif_adhesion as ta
                         WHERE date_tarif_ad = (
                             SELECT MAX(ta.date_tarif_ad) 
-                            FROM v1.tarif_adhesion as ta
+                            FROM v2.tarif_adhesion as ta
                         )
                     """)
                     tarif = cur.fetchone()
@@ -222,7 +222,7 @@ def create_app(parent):
 
                     # Vérifions si une adhésion existe déjà pour cette personne
                     cur.execute("""
-                        SELECT personne_id FROM v1.adhesion WHERE personne_id = %s
+                        SELECT personne_id FROM v2.adhesion WHERE personne_id = %s
                     """, (id_personne,))
 
                     adhesion_existe = cur.fetchone()
@@ -230,7 +230,7 @@ def create_app(parent):
                     if adhesion_existe:
                         # Si l'adhésion existe, on la met à jour
                         cur.execute("""
-                            UPDATE v1.adhesion
+                            UPDATE v2.adhesion
                             SET date_adhesion = %s, 
                                 prix_paye = %s,
                                 tarif_ad_id = %s
@@ -244,7 +244,7 @@ def create_app(parent):
                     else:
                         # Si l'adhésion n'existe pas, on la crée
                         cur.execute("""
-                            INSERT INTO v1.adhesion (personne_id, date_adhesion, prix_paye, tarif_ad_id)
+                            INSERT INTO v2.adhesion (personne_id, date_adhesion, prix_paye, tarif_ad_id)
                             VALUES (%s, %s, %s, %s)
                         """, (
                             id_personne,
@@ -280,29 +280,34 @@ def create_app(parent):
 
             # Informations de la personne (en lecture seule)
             ttk.Label(main_frame, text="Prénom :").grid(row=0, column=0, padx=5, pady=5, sticky="e")
-            prenom_entry = ttk.Entry(main_frame, width=30, state="readonly")
+            prenom_entry = ttk.Entry(main_frame, width=30)
             prenom_entry.grid(row=0, column=1, padx=5, pady=5)
             prenom_entry.insert(0, values[1])
+            prenom_entry.config(state="readonly")
 
             ttk.Label(main_frame, text="Nom :").grid(row=1, column=0, padx=5, pady=5, sticky="e")
-            nom_entry = ttk.Entry(main_frame, width=30, state="readonly")
+            nom_entry = ttk.Entry(main_frame, width=30)
             nom_entry.grid(row=1, column=1, padx=5, pady=5)
             nom_entry.insert(0, values[2])
+            nom_entry.config(state="readonly")
 
             ttk.Label(main_frame, text="Téléphone :").grid(row=2, column=0, padx=5, pady=5, sticky="e")
-            tel_entry = ttk.Entry(main_frame, width=30, state="readonly")
+            tel_entry = ttk.Entry(main_frame, width=30)
             tel_entry.grid(row=2, column=1, padx=5, pady=5)
             tel_entry.insert(0, values[6] if values[6] else "")
+            tel_entry.config(state="readonly")
 
             ttk.Label(main_frame, text="Genre :").grid(row=3, column=0, padx=5, pady=5, sticky="e")
-            genre_entry = ttk.Entry(main_frame, width=30, state="readonly")
+            genre_entry = ttk.Entry(main_frame, width=30)
             genre_entry.grid(row=3, column=1, padx=5, pady=5)
             genre_entry.insert(0, values[4])
+            genre_entry.config(state="readonly")
 
             ttk.Label(main_frame, text="Aidant :").grid(row=4, column=0, padx=5, pady=5, sticky="e")
-            aidant_entry = ttk.Entry(main_frame, width=30, state="readonly")
+            aidant_entry = ttk.Entry(main_frame, width=30)
             aidant_entry.grid(row=4, column=1, padx=5, pady=5)
             aidant_entry.insert(0, values[5])
+            aidant_entry.config(state="readonly")
 
             # Champs modifiables pour l'adhésion
             ttk.Label(main_frame, text="Date d'adhésion (JJ/MM/AAAA) :").grid(row=5, column=0, padx=5, pady=5,
